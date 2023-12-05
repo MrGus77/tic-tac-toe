@@ -12,76 +12,92 @@ app.use(express.static('public'));
 
 const connections = new Set();
 
-wss.on('connection', ws => {
+wss.on('connection', (ws) => {
+    // Handle WebSocket connections...
+
+    // When a new player connects, try to add them to the game
     if (game.addPlayer(ws)) {
-        ws.send(JSON.stringify({ type: 'gameState', data: game.getCurrentState() }))
+        // Notify the new player about the current state
+        ws.send(JSON.stringify({ type: 'gameState', data: game.getCurrentState() }));
 
-        wss.clients.forEach(client => {
+        // Broadcast the updated state to all players
+        wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(
-                    JSON.stringify({ type: 'gameState', data: game.getCurrentState() })
-                )
+                client.send(JSON.stringify({ type: 'gameState', data: game.getCurrentState() }));
             }
-        })
+        });
 
-        ws.on('message', data => {
+        ws.on('message', (data) => {
+            // Handle moves from clients
             try {
-                const { type, position } = JSON.parse(data)
+                const { type, position } = JSON.parse(data);
                 if (type === 'makeMove') {
                     if (game.makeMove(ws, position)) {
-                        wss.clients.forEach(client => {
+                        // Broadcast the updated state to all players
+                        wss.clients.forEach((client) => {
                             if (client.readyState === WebSocket.OPEN) {
-                                client.send(
-                                    JSON.stringify({
-                                        type: 'gameState',
-                                        data: game.getCurrentState()
-                                    })
-                                )
+                                client.send(JSON.stringify({ type: 'gameState', data: game.getCurrentState() }));
                             }
-                        })
+                        });
 
-                        const winner = game.checkWinner()
-
+                        // Check for a winner or tie
+                        const winner = game.checkWinner();
                         if (winner) {
-                            wss.clients.forEach(client => {
+                            wss.clients.forEach((client) => {
                                 if (client.readyState === WebSocket.OPEN) {
-                                    client.send(
-                                        JSON.stringify({ type: 'gameOver', data: { winner } })
-                                    )
+                                    client.send(JSON.stringify({ type: 'gameOver', data: { winner } }));
                                 }
-                            })
-
+                            });
+                            // Reset the game after a delay
                             setTimeout(() => {
-                                game = new TicTacToeGame()
-                                wss.clients.forEach(client => {
+                                game = new TicTacToeGame();
+                                wss.clients.forEach((client) => {
                                     if (client.readyState === WebSocket.OPEN) {
-                                        client.send(
-                                            JSON.stringify({
-                                                type: 'gameState',
-                                                data: game.getCurrentState()
-                                            })
-                                        )
+                                        client.send(JSON.stringify({ type: 'gameState', data: game.getCurrentState() }));
                                     }
-                                })
-                            }, 3000)
+                                });
+                            }, 3000);
                         }
                     }
                 }
             } catch (error) {
-                console.error('Invalid message format:', error.message)
+                console.error('Invalid message format:', error.message);
             }
-        })
+        });
 
         ws.on('close', () => {
-            game.players = game.players.filter(player => player !== ws)
-
+            // Handle player disconnect
+            game.players = game.players.filter(player => player !== ws);
             if (game.players.length === 0) {
-                game = new TicTacToeGame()
+                // Reset the game if there are no players
+                game = new TicTacToeGame();
             }
-        })
+        });
     }
-})
+});
 
+
+const bodyParser = require('body-parser');
+
+// Use bodyParser middleware to parse JSON in POST requests
+app.use(bodyParser.json());
+
+// RESTful API endpoints...
+app.post('/join', (req, res) => {
+    // Handle joining the game...
+    const { playerName } = req.body;
+
+    if (playerName && game.addPlayer(playerName)) {
+        res.status(200).json({ message: 'Successfully joined the game.' });
+    } else {
+        res.status(400).json({ error: 'Failed to join the game. The game is full or invalid player name.' });
+    }
+});
+
+app.get('/state', (req, res) => {
+    // Handle getting the game state...
+    res.status(200).json(game.getCurrentState());
+});
 
 process.on('SIGINT', () => {
     console.log('\nReceived SIGINT (Ctrl+C). Initiating graceful shutdown...');
