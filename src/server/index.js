@@ -10,8 +10,6 @@ const game = new TicTacToeGame();
 
 app.use(express.static('public'));
 
-const connections = new Set();
-
 wss.on('connection', (ws) => {
     // Handle WebSocket connections...
 

@@ -1,3 +1,5 @@
+const cloneDeep = require('lodash/cloneDeep');
+
 class TicTacToeGame {
 
     constructor() {
@@ -15,12 +17,14 @@ class TicTacToeGame {
     }
 
     getCurrentState() {
+        const clonedGame = cloneDeep(this); // Use lodash to create a deep copy without circular references
         return {
-            board: this.board,
-            players: this.players,
-            currentPlayer: this.currentPlayerIndex !== null ? this.players[this.currentPlayerIndex] : null,
+          board: clonedGame.board,
+          players: clonedGame.players,
+          currentPlayer: clonedGame.currentPlayerIndex !== null ? clonedGame.players[clonedGame.currentPlayerIndex] : null,
         };
-    }
+      }
+    
 
     makeMove(playerIndex, position) {
         if (this.currentPlayerIndex === playerIndex && !this.board[position]) {
