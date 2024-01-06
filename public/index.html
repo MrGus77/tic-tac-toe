@@ -1,31 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic-Tac-Toe</title>
-  <style>
-    /* Add your CSS styles here */
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe - Login</title>
+    <style>
+      body {
+        background-color: #191919;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90vh;
+      }
 
-    .cell {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      background-color: #eee;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <div id="board" class="board"></div>
-  <script src="script.js"></script>
-</body>
+      .login {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .login form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .login form input {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 1px solid #fff;
+        border-radius: 0.25rem;
+        background-color: #191919;
+        color: #fff;
+      }
+
+      .login form button {
+        cursor: pointer;
+        padding: 0.5rem;
+        border: 1px solid #fff;
+        border-radius: 0.25rem;
+        background-color: #191919;
+        color: #fff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="login" class="login">
+      <form id="form">
+        <input
+          id="username"
+          type="text"
+          name="username"
+          id="username"
+          placeholder="Username"
+          required
+        />
+
+        <button id="login-button" type="submit">Login</button>
+      </form>
+    </div>
+
+    <script src="./scripts/login.js"></script>
+  </body>
 </html>
